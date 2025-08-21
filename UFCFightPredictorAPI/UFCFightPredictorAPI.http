@@ -1,0 +1,5 @@
+@UFCFightPredictorAPI_HostAddress = http://localhost:5204
+
+### Search Fighters
+GET {{UFCFightPredictorAPI_HostAddress}}/api/fighter/search?name=themba
+Accept: application/json
