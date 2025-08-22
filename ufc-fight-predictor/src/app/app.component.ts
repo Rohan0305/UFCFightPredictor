@@ -140,8 +140,13 @@ Format your response as JSON:
   }
 
   private async callGPTAPI(prompt: string): Promise<any> {
-    // Your GPT API key
-    const apiKey = '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';
+    // Get API key from environment variable (remove the hardcoded key!)
+    const apiKey = process.env['OPENAI_API_KEY'] || '';
+    
+    if (!apiKey) {
+      throw new Error('OpenAI API key not found. Please set OPENAI_API_KEY environment variable.');
+    }
+    
     const apiUrl = 'https://api.openai.com/v1/chat/completions';
     
     const response = await fetch(apiUrl, {
