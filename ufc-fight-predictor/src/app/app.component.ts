@@ -17,54 +17,25 @@ export class AppComponent {
   fighter2Name: string = '';
   prediction: any = null;
   error: string = '';
+  isLoading: boolean = false;
 
   constructor(private http: HttpClient, private cdr: ChangeDetectorRef) {}
 
   searchFighter1() {
     if (!this.fighter1Name.trim()) return;
     
-    console.log('=== SEARCH FIGHTER 1 START ===');
-    console.log('Searching for:', this.fighter1Name);
-    console.log('Current fighter1 before search:', this.fighter1);
-    
-    this.http.get<any[]>(`http://localhost:5294/api/Fighter/search?name=${this.fighter1Name}`)
+    this.http.get<any>(`http://localhost:5294/api/Fighter/search?name=${this.fighter1Name}`)
       .subscribe({
-        next: (fighters) => {
-          console.log('=== API RESPONSE RECEIVED ===');
-          console.log('Raw fighters array:', fighters);
-          console.log('Fighters type:', typeof fighters);
-          console.log('Fighters length:', fighters?.length);
-          
-          if (fighters && fighters.length > 0) {
-            console.log('=== SETTING FIGHTER 1 ===');
-            console.log('First fighter object:', fighters[0]);
-            console.log('First fighter type:', typeof fighters[0]);
-            console.log('First fighter keys:', Object.keys(fighters[0]));
-            
-            this.fighter1 = fighters[0];
-            
-            // Force change detection
-            this.cdr.detectChanges();
-            
-            console.log('Change detection triggered');
-            
-            console.log('=== AFTER SETTING FIGHTER 1 ===');
-            console.log('this.fighter1:', this.fighter1);
-            console.log('this.fighter1.Name:', this.fighter1?.Name);
-            console.log('this.fighter1.Nickname:', this.fighter1?.Nickname);
-            console.log('this.fighter1[\'Division Body\']:', this.fighter1?.['Division Body']);
-            
+        next: (data) => {
+          if (data && data.length > 0) {
+            this.fighter1 = data[0];
             this.error = '';
           } else {
-            console.log('No fighters found in response');
-            this.error = 'No fighters found';
+            this.error = 'Fighter 1 not found';
           }
         },
         error: (err) => {
-          console.error('=== API ERROR ===');
-          console.error('Error object:', err);
-          console.error('Error message:', err.message);
-          this.error = `Error: ${err.message}`;
+          this.error = `Error searching Fighter 1: ${err.message}`;
         }
       });
   }
@@ -72,44 +43,149 @@ export class AppComponent {
   searchFighter2() {
     if (!this.fighter2Name.trim()) return;
     
-    console.log('Searching for fighter 2:', this.fighter2Name);
-    
-    this.http.get<any[]>(`http://localhost:5294/api/Fighter/search?name=${this.fighter2Name}`)
+    this.http.get<any>(`http://localhost:5294/api/Fighter/search?name=${this.fighter2Name}`)
       .subscribe({
-        next: (fighters) => {
-          console.log('API response received:', fighters);
-          if (fighters && fighters.length > 0) {
-            this.fighter2 = fighters[0];
-            console.log('Fighter 2 set to:', this.fighter2);
-            console.log('Fighter 2 name:', this.fighter2.Name);
-            console.log('Fighter 2 nickname:', this.fighter2.Nickname);
+        next: (data) => {
+          if (data && data.length > 0) {
+            this.fighter2 = data[0];
             this.error = '';
           } else {
-            console.log('No fighters found');
-            this.error = 'No fighters found';
+            this.error = 'Fighter 2 not found';
           }
         },
         error: (err) => {
-          console.error('API error:', err);
-          this.error = `Error: ${err.message}`;
+          this.error = `Error searching Fighter 2: ${err.message}`;
         }
       });
   }
 
-  predictWinner() {
+  async predictWinner() {
     if (!this.fighter1 || !this.fighter2) return;
     
-    this.http.post<any>('http://localhost:5294/api/Fighter/predict', {
-      Fighter1: this.fighter1,
-      Fighter2: this.fighter2
-    }).subscribe({
-      next: (result) => {
-        this.prediction = result;
-        this.error = '';
+    this.isLoading = true;
+    this.error = '';
+    
+    try {
+      // Create a detailed prompt with both fighters' stats
+      const prompt = this.createGPTPrompt();
+      
+      // Call your GPT API endpoint (you'll need to create this)
+      const response = await this.callGPTAPI(prompt);
+      
+      this.prediction = {
+        Winner: response.winner,
+        Confidence: response.confidence,
+        Reason: response.reasoning
+      };
+      
+    } catch (err: any) {
+      this.error = `Prediction error: ${err.message}`;
+    } finally {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    }
+  }
+
+  private createGPTPrompt(): string {
+    const f1 = this.fighter1;
+    const f2 = this.fighter2;
+    
+    return `Analyze this UFC fight matchup and predict the winner:
+
+FIGHTER 1: ${f1.Name} (${f1.Nickname || 'No nickname'})
+- Record: ${f1['Division Body']?.Wins || '0'}-${f1['Division Body']?.Losses || '0'}-${f1['Division Body']?.Draws || '0'}
+- Age: ${f1['Fighter Bio']?.Age || 'Unknown'}
+- Height: ${f1['Fighter Bio']?.Height || 'Unknown'}"
+- Weight: ${f1['Fighter Bio']?.Weight || 'Unknown'} lbs
+- Reach: ${f1['Fighter Bio']?.Reach || 'Unknown'}"
+- Striking Accuracy: ${f1.Records?.['Striking accuracy'] || 'Unknown'}
+- Strikes Landed per Min: ${f1.Records?.['Sig. Str. Landed'] || 'Unknown'}
+- Strikes Absorbed per Min: ${f1.Records?.['Sig. Str. Absorbed'] || 'Unknown'}
+- Striking Defense: ${f1.Records?.['Sig. Str. Defense'] || 'Unknown'}
+- Takedown Avg: ${f1.Records?.['Takedown avg'] || 'Unknown'}
+- Takedown Accuracy: ${f1.Records?.['Takedown Accuracy'] || 'Unknown'}
+- Takedown Defense: ${f1.Records?.['Takedown Defense'] || 'Unknown'}
+- KO Wins: ${f1['Win Stats']?.['Wins by Knockout'] || 'Unknown'}
+- Submission Wins: ${f1['Win Stats']?.['Wins by Submission'] || 'Unknown'}
+- Win Distribution: Standing ${f1['Win by Method']?.Standing || 'Unknown'}, Clinch ${f1['Win by Method']?.Clinch || 'Unknown'}, Ground ${f1['Win by Method']?.Ground || 'Unknown'}
+
+FIGHTER 2: ${f2.Name} (${f2.Nickname || 'No nickname'})
+- Record: ${f2['Division Body']?.Wins || '0'}-${f2['Division Body']?.Losses || '0'}-${f2['Division Body']?.Draws || '0'}
+- Age: ${f2['Fighter Bio']?.Age || 'Unknown'}
+- Height: ${f2['Fighter Bio']?.Height || 'Unknown'}"
+- Weight: ${f2['Fighter Bio']?.Weight || 'Unknown'} lbs
+- Reach: ${f2['Fighter Bio']?.Reach || 'Unknown'}"
+- Striking Accuracy: ${f2.Records?.['Striking accuracy'] || 'Unknown'}
+- Strikes Landed per Min: ${f2.Records?.['Sig. Str. Landed'] || 'Unknown'}
+- Strikes Absorbed per Min: ${f2.Records?.['Sig. Str. Absorbed'] || 'Unknown'}
+- Striking Defense: ${f2.Records?.['Sig. Str. Defense'] || 'Unknown'}
+- Takedown Avg: ${f2.Records?.['Takedown avg'] || 'Unknown'}
+- Takedown Accuracy: ${f2.Records?.['Takedown Accuracy'] || 'Unknown'}
+- Takedown Defense: ${f2.Records?.['Takedown Defense'] || 'Unknown'}
+- KO Wins: ${f2['Win Stats']?.['Wins by Knockout'] || 'Unknown'}
+- Submission Wins: ${f2['Win Stats']?.['Wins by Submission'] || 'Unknown'}
+- Win Distribution: Standing ${f2['Win by Method']?.Standing || 'Unknown'}, Clinch ${f2['Win by Method']?.Clinch || 'Unknown'}, Ground ${f2['Win by Method']?.Ground || 'Unknown'}
+
+Based on these stats, analyze the matchup and provide:
+1. Winner prediction (just the fighter's name)
+2. Confidence level (0.0 to 1.0)
+3. Detailed reasoning for your prediction
+
+Format your response as JSON:
+{
+  "winner": "Fighter Name",
+  "confidence": 0.85,
+  "reasoning": "Detailed analysis..."
+}`;
+  }
+
+  private async callGPTAPI(prompt: string): Promise<any> {
+    // Your GPT API key
+    const apiKey = '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';
+    const apiUrl = 'https://api.openai.com/v1/chat/completions';
+    
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
       },
-      error: (err) => {
-        this.error = `Prediction error: ${err.message}`;
-      }
+      body: JSON.stringify({
+        model: 'gpt-3.5-turbo',
+        messages: [
+          {
+            role: 'system',
+            content: 'You are a UFC fight analyst. Analyze the provided fighter stats and predict the winner with confidence and reasoning.'
+          },
+          {
+            role: 'user',
+            content: prompt
+          }
+        ],
+        temperature: 0.7,
+        max_tokens: 500
+      })
     });
+
+    if (!response.ok) {
+      throw new Error(`GPT API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const content = data.choices[0].message.content;
+    
+    try {
+      return JSON.parse(content);
+    } catch (e) {
+      // If GPT doesn't return valid JSON, extract info manually
+      const lines = content.split('\n');
+      const winner = lines.find((line: string) => line.includes('Winner:') || line.includes('winner:'))?.split(':')[1]?.trim() || 'Unknown';
+      const confidence = parseFloat(
+        lines.find((line: string) => line.includes('Confidence:') || line.includes('confidence:'))?.split(':')[1]?.trim() || '0.5'
+      );
+      const reasoning = lines.find((line: string) => line.includes('Reasoning:') || line.includes('reasoning:'))?.split(':')[1]?.trim() || content;
+
+      return { winner, confidence, reasoning };
+    }
   }
 }

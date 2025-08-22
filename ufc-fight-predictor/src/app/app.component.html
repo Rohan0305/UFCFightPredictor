@@ -169,13 +169,21 @@
 
   <!-- Prediction Section -->
   <div *ngIf="fighter1 && fighter2" style="text-align: center; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-    <button (click)="predictWinner()" style="padding: 18px 35px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 18px; font-weight: 600; transition: transform 0.2s; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">Predict Winner</button>
+    <button 
+      (click)="predictWinner()" 
+      [disabled]="isLoading"
+      style="padding: 18px 35px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 18px; font-weight: 600; transition: transform 0.2s; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+      {{ isLoading ? 'Analyzing...' : 'Get AI Prediction' }}
+    </button>
     
     <div *ngIf="prediction" style="margin-top: 25px; padding: 25px; background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-radius: 8px; border: 1px solid #90caf9;">
-      <h3 style="margin-top: 0; color: #1565c0;">Prediction Result</h3>
+      <h3 style="margin-top: 0; color: #1565c0;">AI Prediction Result</h3>
       <p style="margin: 12px 0; font-size: 1.1rem;"><strong>Winner:</strong> <span style="color: #1565c0; font-weight: bold;">{{ prediction.Winner }}</span></p>
       <p style="margin: 12px 0; font-size: 1.1rem;"><strong>Confidence:</strong> <span style="color: #1565c0; font-weight: bold;">{{ (prediction.Confidence * 100).toFixed(1) }}%</span></p>
-      <p style="margin: 12px 0; font-size: 1.1rem;"><strong>Reason:</strong> {{ prediction.Reason }}</p>
+      <p style="margin: 12px 0; font-size: 1.1rem;"><strong>AI Reasoning:</strong></p>
+      <div style="background: white; padding: 15px; border-radius: 6px; text-align: left; margin-top: 10px;">
+        <p style="margin: 0; line-height: 1.6;">{{ prediction.Reason }}</p>
+      </div>
     </div>
   </div>
 
