@@ -141,7 +141,7 @@ Format your response as JSON:
 
   private async callGPTAPI(prompt: string): Promise<any> {
     // REMOVE THE API KEY - just put a placeholder
-    const apiKey = 'PLACEHOLDER_API_KEY'; // We'll add the real one back later
+    //const apiKey = / We'll add the real one back later
     
     const apiUrl = 'https://api.openai.com/v1/chat/completions';
     
