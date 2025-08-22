@@ -45,3 +45,6 @@ Thumbs.db
 .env
 .env.test
 .env.production
+
+# Environment files with API keys
+src/environments/environment*.ts

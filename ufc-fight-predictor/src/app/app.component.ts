@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
+import { environment } from '../environments/environment';
 
 @Component({
   selector: 'app-root',
@@ -140,8 +141,7 @@ Format your response as JSON:
   }
 
   private async callGPTAPI(prompt: string): Promise<any> {
-    // REMOVE THE API KEY - just put a placeholder
-    //const apiKey = / We'll add the real one back later
+    const apiKey = environment.openaiApiKey;
     
     const apiUrl = 'https://api.openai.com/v1/chat/completions';
     
