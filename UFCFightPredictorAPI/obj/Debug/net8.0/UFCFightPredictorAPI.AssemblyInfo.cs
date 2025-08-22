@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("UFCFightPredictorAPI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4505a6d8258da5fa255effdac2ac291dd03cd9e0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8e79f1844e34f793c25bdaf0a815c6a2d3aa307d")]
 [assembly: System.Reflection.AssemblyProductAttribute("UFCFightPredictorAPI")]
 [assembly: System.Reflection.AssemblyTitleAttribute("UFCFightPredictorAPI")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

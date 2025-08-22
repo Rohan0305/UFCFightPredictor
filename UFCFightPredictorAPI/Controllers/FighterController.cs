@@ -42,10 +42,6 @@ namespace UFCFightPredictorAPI.Controllers
                     var fighters = JsonSerializer.Deserialize<List<Fighter>>(json);
                     
                     Console.WriteLine($"Deserialized fighters count: {fighters?.Count ?? 0}");
-                    if (fighters != null && fighters.Count > 0)
-                    {
-                        Console.WriteLine($"First fighter name: {fighters[0]}");
-                    }
                     return Ok(fighters);
                 }
                 
