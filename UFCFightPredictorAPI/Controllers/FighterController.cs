@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
+using System.Text.Json.Serialization; // Added for JsonPropertyName
 
 namespace UFCFightPredictorAPI.Controllers
 {
@@ -20,7 +21,7 @@ namespace UFCFightPredictorAPI.Controllers
         }
 
         [HttpGet("search")]
-        public async Task<ActionResult<IEnumerable<Fighter>>> SearchFighters([FromQuery] string name)
+        public async Task<ActionResult<IEnumerable<Fighter>>> SearchFighters([FromQuery(Name = "name")] string name)
         {
             try
             {
@@ -39,7 +40,14 @@ namespace UFCFightPredictorAPI.Controllers
                 if (response.IsSuccessStatusCode)
                 {
                     var json = await response.Content.ReadAsStringAsync();
+                    // Console.WriteLine($"Raw RapidAPI response for '{name}': {json}"); // Add this line
                     var fighters = JsonSerializer.Deserialize<List<Fighter>>(json);
+                     // Add this line to see what we're returning
+                    Console.WriteLine($"Deserialized fighters count: {fighters?.Count ?? 0}");
+                    if (fighters != null && fighters.Count > 0)
+                    {
+                        Console.WriteLine($"First fighter name: {fighters[0]}");
+                    }
                     return Ok(fighters);
                 }
                 
@@ -97,75 +105,170 @@ namespace UFCFightPredictorAPI.Controllers
 
     public class Fighter
     {
-        public string Name { get; set; } = string.Empty;
-        public string Nickname { get; set; } = string.Empty;
-        public string DivisionTitle { get; set; } = string.Empty;
-        public DivisionBody DivisionBody { get; set; } = new();
-        public FighterBio FighterBio { get; set; } = new();
-        public WinStats WinStats { get; set; } = new();
-        public Records Records { get; set; } = new();
-        public WinByMethod WinByMethod { get; set; } = new();
-        public LastFight LastFight { get; set; } = new();
-        public List<string> FighterFacts { get; set; } = new();
-        public List<string> UFCHistory { get; set; } = new();
-        public Dictionary<string, object> AdditionalInformation { get; set; } = new();
+        [JsonPropertyName("Name")]
+        public string? Name { get; set; }
+        
+        [JsonPropertyName("Nickname")]
+        public string? Nickname { get; set; }
+        
+        [JsonPropertyName("Division Title")]
+        public string? DivisionTitle { get; set; }
+        
+        [JsonPropertyName("Division Body")]
+        public DivisionBody? DivisionBody { get; set; }
+        
+        [JsonPropertyName("Fighter Bio")]
+        public FighterBio? FighterBio { get; set; }
+        
+        [JsonPropertyName("Win Stats")]
+        public WinStats? WinStats { get; set; }
+        
+        [JsonPropertyName("Records")]
+        public Records? Records { get; set; }
+        
+        [JsonPropertyName("Win by Method")]
+        public WinByMethod? WinByMethod { get; set; }
+        
+        [JsonPropertyName("Last Fight")]
+        public LastFight? LastFight { get; set; }
+        
+        [JsonPropertyName("Fighter Facts")]
+        public List<string>? FighterFacts { get; set; }
+        
+        [JsonPropertyName("UFC History")]
+        public List<string>? UfcHistory { get; set; }
+        
+        [JsonPropertyName("Additional Information")]
+        public Dictionary<string, object>? AdditionalInformation { get; set; }
+        
+        [JsonPropertyName("Image Link")]
+        public string? ImageLink { get; set; }
     }
 
     public class DivisionBody
     {
-        public string Wins { get; set; } = string.Empty;
-        public string Losses { get; set; } = string.Empty;
-        public string Draws { get; set; } = string.Empty;
+        [JsonPropertyName("Wins")]
+        public string? Wins { get; set; }
+        
+        [JsonPropertyName("Losses")]
+        public string? Losses { get; set; }
+        
+        [JsonPropertyName("Draws")]
+        public string? Draws { get; set; }
     }
 
     public class FighterBio
     {
-        public string Hometown { get; set; } = string.Empty;
-        public string FightingStyle { get; set; } = string.Empty;
-        public string Age { get; set; } = string.Empty;
-        public string Height { get; set; } = string.Empty;
-        public string Weight { get; set; } = string.Empty;
-        public string OctagonDebut { get; set; } = string.Empty;
-        public string Reach { get; set; } = string.Empty;
-        public string LegReach { get; set; } = string.Empty;
+        [JsonPropertyName("Status")]
+        public string? Status { get; set; }
+        
+        [JsonPropertyName("Hometown")]
+        public string? Hometown { get; set; }
+        
+        [JsonPropertyName("Trains at")]
+        public string? TrainsAt { get; set; }
+        
+        [JsonPropertyName("Fighting style")]
+        public string? FightingStyle { get; set; }
+        
+        [JsonPropertyName("Age")]
+        public string? Age { get; set; }
+        
+        [JsonPropertyName("Height")]
+        public string? Height { get; set; }
+        
+        [JsonPropertyName("Weight")]
+        public string? Weight { get; set; }
+        
+        [JsonPropertyName("Octagon Debut")]
+        public string? OctagonDebut { get; set; }
+        
+        [JsonPropertyName("Reach")]
+        public string? Reach { get; set; }
+        
+        [JsonPropertyName("Leg reach")]
+        public string? LegReach { get; set; }
     }
 
     public class WinStats
     {
-        public string WinsByKnockout { get; set; } = string.Empty;
-        public string WinsBySubmission { get; set; } = string.Empty;
-        public string FirstRoundFinishes { get; set; } = string.Empty;
+        [JsonPropertyName("Wins by Knockout")]
+        public string? WinsByKnockout { get; set; }
+        
+        [JsonPropertyName("Wins by Submission")]
+        public string? WinsBySubmission { get; set; }
+        
+        [JsonPropertyName("Former Champion")]
+        public string? FormerChampion { get; set; }
+        
+        [JsonPropertyName("Fight Win Streak")]
+        public string? FightWinStreak { get; set; }
     }
 
     public class Records
     {
-        public string SigStrLanded { get; set; } = string.Empty;
-        public string SigStrAbsorbed { get; set; } = string.Empty;
-        public string TakedownAvg { get; set; } = string.Empty;
-        public string SubmissionAvg { get; set; } = string.Empty;
-        public string SigStrDefense { get; set; } = string.Empty;
-        public string TakedownDefense { get; set; } = string.Empty;
-        public string KnockdownAvg { get; set; } = string.Empty;
-        public string AverageFightTime { get; set; } = string.Empty;
-        public string SigStrikesLanded { get; set; } = string.Empty;
-        public string SigStrikesAttempted { get; set; } = string.Empty;
-        public string TakedownsLanded { get; set; } = string.Empty;
-        public string TakedownsAttempted { get; set; } = string.Empty;
-        public string StrikingAccuracy { get; set; } = string.Empty;
-        public string TakedownAccuracy { get; set; } = string.Empty;
+        [JsonPropertyName("Sig. Str. Landed")]
+        public string? SigStrLanded { get; set; }
+        
+        [JsonPropertyName("Sig. Str. Absorbed")]
+        public string? SigStrAbsorbed { get; set; }
+        
+        [JsonPropertyName("Takedown avg")]
+        public string? TakedownAvg { get; set; }
+        
+        [JsonPropertyName("Submission avg")]
+        public string? SubmissionAvg { get; set; }
+        
+        [JsonPropertyName("Sig. Str. Defense")]
+        public string? SigStrDefense { get; set; }
+        
+        [JsonPropertyName("Takedown Defense")]
+        public string? TakedownDefense { get; set; }
+        
+        [JsonPropertyName("Knockdown Avg")]
+        public string? KnockdownAvg { get; set; }
+        
+        [JsonPropertyName("Average fight time")]
+        public string? AverageFightTime { get; set; }
+        
+        [JsonPropertyName("Sig. Strikes Landed")]
+        public string? SigStrikesLanded { get; set; }
+        
+        [JsonPropertyName("Sig. Strikes Attempted")]
+        public string? SigStrikesAttempted { get; set; }
+        
+        [JsonPropertyName("Takedowns Landed")]
+        public string? TakedownsLanded { get; set; }
+        
+        [JsonPropertyName("Takedowns Attempted")]
+        public string? TakedownsAttempted { get; set; }
+        
+        [JsonPropertyName("Striking accuracy")]
+        public string? StrikingAccuracy { get; set; }
+        
+        [JsonPropertyName("Takedown Accuracy")]
+        public string? TakedownAccuracy { get; set; }
     }
 
     public class WinByMethod
     {
-        public string Standing { get; set; } = string.Empty;
-        public string Clinch { get; set; } = string.Empty;
-        public string Ground { get; set; } = string.Empty;
+        [JsonPropertyName("Standing")]
+        public string? Standing { get; set; }
+        
+        [JsonPropertyName("Clinch")]
+        public string? Clinch { get; set; }
+        
+        [JsonPropertyName("Ground")]
+        public string? Ground { get; set; }
     }
 
     public class LastFight
     {
-        public string Event { get; set; } = string.Empty;
-        public string Date { get; set; } = string.Empty;
+        [JsonPropertyName("Event")]
+        public string? Event { get; set; }
+        
+        [JsonPropertyName("Date")]
+        public string? Date { get; set; }
     }
 
     public class PredictionRequest
