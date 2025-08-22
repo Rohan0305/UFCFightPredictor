@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
+import { environment } from '../environments/environment';
 
 @Component({
   selector: 'app-root',
@@ -140,12 +141,8 @@ Format your response as JSON:
   }
 
   private async callGPTAPI(prompt: string): Promise<any> {
-    // Get API key from environment variable (remove the hardcoded key!)
-    const apiKey = process.env['OPENAI_API_KEY'] || '';
-    
-    if (!apiKey) {
-      throw new Error('OpenAI API key not found. Please set OPENAI_API_KEY environment variable.');
-    }
+    // Just put your API key here for now
+    const apiKey = 'sk-proj-mAnHidfN7VEHUiKNHlV9NkEqM3HEio68LbVkOJpKr5fmDan4mhBtwT3BlbkFJLGDrfWnLwrEyARAY0dJQ-Gdu_zqij1IQDsDHKF1pMU-8sovsOe8rbmbKMDz7fW2tUtWCGNIBsA';
     
     const apiUrl = 'https://api.openai.com/v1/chat/completions';
     
@@ -184,11 +181,13 @@ Format your response as JSON:
     } catch (e) {
       // If GPT doesn't return valid JSON, extract info manually
       const lines = content.split('\n');
-      const winner = lines.find((line: string) => line.includes('Winner:') || line.includes('winner:'))?.split(':')[1]?.trim() || 'Unknown';
-      const confidence = parseFloat(
-        lines.find((line: string) => line.includes('Confidence:') || line.includes('confidence:'))?.split(':')[1]?.trim() || '0.5'
-      );
-      const reasoning = lines.find((line: string) => line.includes('Reasoning:') || line.includes('reasoning:'))?.split(':')[1]?.trim() || content;
+      const winnerLine = lines.find((line: string) => line.toLowerCase().includes('winner:'));
+      const confidenceLine = lines.find((line: string) => line.toLowerCase().includes('confidence:'));
+      const reasoningLine = lines.find((line: string) => line.toLowerCase().includes('reasoning:'));
+
+      const winner = winnerLine ? winnerLine.split(':').slice(1).join(':').trim() : 'Unknown';
+      const confidence = confidenceLine ? parseFloat(confidenceLine.split(':').slice(1).join(':').trim()) : 0.5;
+      const reasoning = reasoningLine ? reasoningLine.split(':').slice(1).join(':').trim() : content;
 
       return { winner, confidence, reasoning };
     }
