@@ -100,7 +100,6 @@ Format your response as JSON:
     try {
       return JSON.parse(content);
     } catch (e) {
-      // If GPT doesn't return valid JSON, extract info manually
       const lines = content.split('\n');
       const winnerLine = lines.find((line: string) => line.toLowerCase().includes('winner:'));
       const confidenceLine = lines.find((line: string) => line.toLowerCase().includes('confidence:'));
