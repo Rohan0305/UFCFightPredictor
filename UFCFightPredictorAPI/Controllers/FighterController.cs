@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
-using System.Text.Json.Serialization; // Added for JsonPropertyName
-
+using System.Text.Json.Serialization;
 namespace UFCFightPredictorAPI.Controllers
 {
     [Route("api/[controller]")]
@@ -40,9 +39,8 @@ namespace UFCFightPredictorAPI.Controllers
                 if (response.IsSuccessStatusCode)
                 {
                     var json = await response.Content.ReadAsStringAsync();
-                    // Console.WriteLine($"Raw RapidAPI response for '{name}': {json}"); // Add this line
                     var fighters = JsonSerializer.Deserialize<List<Fighter>>(json);
-                     // Add this line to see what we're returning
+                    
                     Console.WriteLine($"Deserialized fighters count: {fighters?.Count ?? 0}");
                     if (fighters != null && fighters.Count > 0)
                     {
@@ -58,48 +56,6 @@ namespace UFCFightPredictorAPI.Controllers
             {
                 return StatusCode(500, $"Error searching fighters: {ex.Message}");
             }
-        }
-
-        [HttpPost("predict")]
-        public ActionResult<PredictionResult> PredictWinner([FromBody] PredictionRequest request)
-        {
-            try
-            {
-                // Simple ML prediction based on fighter stats
-                var winner = PredictWinner(fighter1: request.Fighter1, fighter2: request.Fighter2);
-                
-                return Ok(new PredictionResult
-                {
-                    Winner = winner,
-                    Confidence = 0.75, // Simple confidence score
-                    Reason = $"Based on win rate and fight statistics"
-                });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Error making prediction: {ex.Message}");
-            }
-        }
-
-        private string PredictWinner(Fighter fighter1, Fighter fighter2)
-        {
-            // Simple prediction logic based on win rate
-            var fighter1Wins = int.Parse(fighter1.DivisionBody.Wins);
-            var fighter1Losses = int.Parse(fighter1.DivisionBody.Losses);
-            var fighter1WinRate = fighter1Wins / (double)(fighter1Wins + fighter1Losses);
-
-            var fighter2Wins = int.Parse(fighter2.DivisionBody.Wins);
-            var fighter2Losses = int.Parse(fighter2.DivisionBody.Losses);
-            var fighter2WinRate = fighter2Wins / (double)(fighter2Wins + fighter2Losses);
-
-            // Add some randomness to make it interesting
-            var random = new Random();
-            var randomFactor = random.NextDouble() * 0.2 - 0.1; // ±10% randomness
-
-            var adjustedFighter1Rate = fighter1WinRate + randomFactor;
-            var adjustedFighter2Rate = fighter2WinRate + randomFactor;
-
-            return adjustedFighter1Rate > adjustedFighter2Rate ? fighter1.Name : fighter2.Name;
         }
     }
 
