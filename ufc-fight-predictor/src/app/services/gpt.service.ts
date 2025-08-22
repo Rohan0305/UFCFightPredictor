@@ -1,93 +1,21 @@
-import { Component, ChangeDetectorRef } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
-import { environment } from '../environments/environment';
+export interface GPTResponse {
+  winner: string;
+  confidence: number;
+  reasoning: string;
+}
 
-@Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  standalone: true,
-  imports: [CommonModule, FormsModule, HttpClientModule]
-})
-export class AppComponent {
-  fighter1: any = null;
-  fighter2: any = null;
-  fighter1Name: string = '';
-  fighter2Name: string = '';
-  prediction: any = null;
-  error: string = '';
-  isLoading: boolean = false;
+export class GPTService {
+  private readonly apiKey = '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';
+  private readonly apiUrl = 'https://api.openai.com/v1/chat/completions';
 
-  constructor(private http: HttpClient, private cdr: ChangeDetectorRef) {}
-
-  searchFighter1() {
-    if (!this.fighter1Name.trim()) return;
-    
-    this.http.get<any>(`http://localhost:5294/api/Fighter/search?name=${this.fighter1Name}`)
-      .subscribe({
-        next: (data) => {
-          if (data && data.length > 0) {
-            this.fighter1 = data[0];
-            this.error = '';
-          } else {
-            this.error = 'Fighter 1 not found';
-          }
-        },
-        error: (err) => {
-          this.error = `Error searching Fighter 1: ${err.message}`;
-        }
-      });
+  async predictWinner(fighter1: any, fighter2: any): Promise<GPTResponse> {
+    const prompt = this.createGPTPrompt(fighter1, fighter2);
+    return await this.callGPTAPI(prompt);
   }
 
-  searchFighter2() {
-    if (!this.fighter2Name.trim()) return;
-    
-    this.http.get<any>(`http://localhost:5294/api/Fighter/search?name=${this.fighter2Name}`)
-      .subscribe({
-        next: (data) => {
-          if (data && data.length > 0) {
-            this.fighter2 = data[0];
-            this.error = '';
-          } else {
-            this.error = 'Fighter 2 not found';
-          }
-        },
-        error: (err) => {
-          this.error = `Error searching Fighter 2: ${err.message}`;
-        }
-      });
-  }
-
-  async predictWinner() {
-    if (!this.fighter1 || !this.fighter2) return;
-    
-    this.isLoading = true;
-    this.error = '';
-    
-    try {
-      const prompt = this.createGPTPrompt();
-      
-      const response = await this.callGPTAPI(prompt);
-      
-      this.prediction = {
-        Winner: response.winner,
-        Confidence: response.confidence,
-        Reason: response.reasoning
-      };
-      
-    } catch (err: any) {
-      this.error = `Prediction error: ${err.message}`;
-    } finally {
-      this.isLoading = false;
-      this.cdr.detectChanges();
-    }
-  }
-
-  private createGPTPrompt(): string {
-    const f1 = this.fighter1;
-    const f2 = this.fighter2;
+  private createGPTPrompt(fighter1: any, fighter2: any): string {
+    const f1 = fighter1;
+    const f2 = fighter2;
     
     return `Analyze this UFC fight matchup and predict the winner:
 
@@ -138,16 +66,12 @@ Format your response as JSON:
 }`;
   }
 
-  private async callGPTAPI(prompt: string): Promise<any> {
-    const apiKey = environment.openaiApiKey;
-    
-    const apiUrl = 'https://api.openai.com/v1/chat/completions';
-    
-    const response = await fetch(apiUrl, {
+  private async callGPTAPI(prompt: string): Promise<GPTResponse> {
+    const response = await fetch(this.apiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
+        'Authorization': `Bearer ${this.apiKey}`
       },
       body: JSON.stringify({
         model: 'gpt-3.5-turbo',
@@ -189,4 +113,4 @@ Format your response as JSON:
       return { winner, confidence, reasoning };
     }
   }
-}
+} 
