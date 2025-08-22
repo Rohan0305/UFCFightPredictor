@@ -30,118 +30,140 @@
     </div>
   </div>
 
-  <!-- Fighter Cards -->
+  <!-- Fighter Cards - Always maintain layout -->
   <div style="display: flex; gap: 30px; margin-bottom: 40px;">
-    <div *ngIf="fighter1" style="flex: 1; background: white; border-radius: 12px; padding: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-left: 5px solid #3498db;">
-      <h3 style="color: #3498db; margin-top: 0; font-size: 1.8rem; border-bottom: 2px solid #3498db; padding-bottom: 10px;">{{ fighter1.Name }}</h3>
-      <p *ngIf="fighter1.Nickname" style="font-style: italic; color: #7f8c8d; margin-bottom: 25px; font-size: 1.1rem;">"{{ fighter1.Nickname }}"</p>
-      
-      <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-        <h4 style="color: #2c3e50; margin-top: 0; font-size: 1.2rem;">Fighter Info</h4>
-        <p style="margin: 8px 0;"><strong>Name:</strong> {{ fighter1.Name }}</p>
-        <p style="margin: 8px 0;"><strong>Nickname:</strong> {{ fighter1.Nickname || 'N/A' }}</p>
-        <p style="margin: 8px 0;"><strong>Division:</strong> {{ fighter1['Division Title'] || 'Not specified' }}</p>
+    <!-- Fighter 1 Card - Always takes left half -->
+    <div style="flex: 1; background: white; border-radius: 12px; padding: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: 3px solid #3498db; min-height: 400px;">
+      <div *ngIf="fighter1; else fighter1Placeholder">
+        <h3 style="color: #3498db; margin-top: 0; font-size: 1.8rem; border-bottom: 2px solid #3498db; padding-bottom: 10px;">{{ fighter1.Name }}</h3>
+        <p *ngIf="fighter1.Nickname" style="font-style: italic; color: #7f8c8d; margin-bottom: 25px; font-size: 1.1rem;">"{{ fighter1.Nickname }}"</p>
+        
+        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+          <h4 style="color: #2c3e50; margin-top: 0; font-size: 1.2rem;">Fighter Info</h4>
+          <p style="margin: 8px 0;"><strong>Name:</strong> {{ fighter1.Name }}</p>
+          <p style="margin: 8px 0;"><strong>Nickname:</strong> {{ fighter1.Nickname || 'N/A' }}</p>
+          <p style="margin: 8px 0;"><strong>Division:</strong> {{ fighter1['Division Title'] || 'Not specified' }}</p>
+        </div>
+        
+        <!-- Record -->
+        <div *ngIf="fighter1['Division Body']?.Wins" style="background: #e8f5e8; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+          <h4 style="color: #27ae60; margin-top: 0; font-size: 1.2rem;">Record</h4>
+          <p style="margin: 8px 0; font-size: 1.1rem;"><strong>Record:</strong> <span style="color: #27ae60; font-weight: bold; font-size: 1.2rem;">{{ fighter1['Division Body'].Wins }}-{{ fighter1['Division Body'].Losses }}-{{ fighter1['Division Body'].Draws }}</span></p>
+        </div>
+        
+        <!-- Bio -->
+        <div *ngIf="fighter1['Fighter Bio']?.Hometown" style="background: #e3f2fd; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+          <h4 style="color: #1976d2; margin-top: 0; font-size: 1.2rem;">Bio</h4>
+          <p style="margin: 8px 0;"><strong>Hometown:</strong> {{ fighter1['Fighter Bio'].Hometown }}</p>
+          <p style="margin: 8px 0;"><strong>Age:</strong> {{ fighter1['Fighter Bio'].Age }}</p>
+          <p style="margin: 8px 0;"><strong>Height:</strong> {{ fighter1['Fighter Bio'].Height }}"</p>
+          <p style="margin: 8px 0;"><strong>Weight:</strong> {{ fighter1['Fighter Bio'].Weight }} lbs</p>
+          <p style="margin: 8px 0;"><strong>Status:</strong> {{ fighter1['Fighter Bio'].Status }}</p>
+        </div>
+        
+        <!-- Fight Stats -->
+        <div *ngIf="fighter1.Records?.['Sig. Str. Landed']" style="background: #fff3e0; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+          <h4 style="color: #f57c00; margin-top: 0; font-size: 1.2rem;">Fight Stats</h4>
+          <p style="margin: 8px 0;"><strong>Striking Accuracy:</strong> {{ fighter1.Records['Striking accuracy'] }}</p>
+          <p style="margin: 8px 0;"><strong>Strikes Landed:</strong> {{ fighter1.Records['Sig. Str. Landed'] }}</p>
+          <p style="margin: 8px 0;"><strong>Strikes Absorbed:</strong> {{ fighter1.Records['Sig. Str. Absorbed'] }}</p>
+          <p style="margin: 8px 0;"><strong>Striking Defense:</strong> {{ fighter1.Records['Sig. Str. Defense'] }}</p>
+          <p style="margin: 8px 0;"><strong>Takedown Avg:</strong> {{ fighter1.Records['Takedown avg'] }}</p>
+          <p style="margin: 8px 0;"><strong>Takedown Accuracy:</strong> {{ fighter1.Records['Takedown Accuracy'] }}</p>
+          <p style="margin: 8px 0;"><strong>Takedown Defense:</strong> {{ fighter1.Records['Takedown Defense'] }}</p>
+          <p style="margin: 8px 0;"><strong>Avg Fight Time:</strong> {{ fighter1.Records['Average fight time'] }}</p>
+        </div>
+        
+        <!-- Win Methods -->
+        <div *ngIf="fighter1['Win Stats']?.['Wins by Knockout']" style="background: #fce4ec; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+          <h4 style="color: #c2185b; margin-top: 0; font-size: 1.2rem;">Win Methods</h4>
+          <p style="margin: 8px 0;"><strong>KO Wins:</strong> {{ fighter1['Win Stats']['Wins by Knockout'] }}</p>
+          <p style="margin: 8px 0;"><strong>Submission Wins:</strong> {{ fighter1['Win Stats']['Wins by Submission'] }}</p>
+        </div>
+        
+        <!-- Win by Method -->
+        <div *ngIf="fighter1['Win by Method']?.Standing" style="background: #e8eaf6; padding: 20px; border-radius: 8px;">
+          <h4 style="color: #3f51b5; margin-top: 0; font-size: 1.2rem;">Win Distribution</h4>
+          <p style="margin: 8px 0;"><strong>Standing Win %:</strong> {{ fighter1['Win by Method'].Standing }}</p>
+          <p style="margin: 8px 0;"><strong>Clinch Win %:</strong> {{ fighter1['Win by Method'].Clinch }}</p>
+          <p style="margin: 8px 0;"><strong>Ground Win %:</strong> {{ fighter1['Win by Method'].Ground }}</p>
+        </div>
       </div>
       
-      <!-- Record -->
-      <div *ngIf="fighter1['Division Body']?.Wins" style="background: #e8f5e8; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-        <h4 style="color: #27ae60; margin-top: 0; font-size: 1.2rem;">Record</h4>
-        <p style="margin: 8px 0; font-size: 1.1rem;"><strong>Record:</strong> <span style="color: #27ae60; font-weight: bold; font-size: 1.2rem;">{{ fighter1['Division Body'].Wins }}-{{ fighter1['Division Body'].Losses }}-{{ fighter1['Division Body'].Draws }}</span></p>
-      </div>
-      
-      <!-- Bio -->
-      <div *ngIf="fighter1['Fighter Bio']?.Hometown" style="background: #e3f2fd; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-        <h4 style="color: #1976d2; margin-top: 0; font-size: 1.2rem;">Bio</h4>
-        <p style="margin: 8px 0;"><strong>Hometown:</strong> {{ fighter1['Fighter Bio'].Hometown }}</p>
-        <p style="margin: 8px 0;"><strong>Age:</strong> {{ fighter1['Fighter Bio'].Age }}</p>
-        <p style="margin: 8px 0;"><strong>Height:</strong> {{ fighter1['Fighter Bio'].Height }}"</p>
-        <p style="margin: 8px 0;"><strong>Weight:</strong> {{ fighter1['Fighter Bio'].Weight }} lbs</p>
-        <p style="margin: 8px 0;"><strong>Status:</strong> {{ fighter1['Fighter Bio'].Status }}</p>
-      </div>
-      
-      <!-- Fight Stats -->
-      <div *ngIf="fighter1.Records?.['Sig. Str. Landed']" style="background: #fff3e0; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-        <h4 style="color: #f57c00; margin-top: 0; font-size: 1.2rem;">Fight Stats</h4>
-        <p style="margin: 8px 0;"><strong>Striking Accuracy:</strong> {{ fighter1.Records['Striking accuracy'] }}</p>
-        <p style="margin: 8px 0;"><strong>Strikes Landed:</strong> {{ fighter1.Records['Sig. Str. Landed'] }}</p>
-        <p style="margin: 8px 0;"><strong>Strikes Absorbed:</strong> {{ fighter1.Records['Sig. Str. Absorbed'] }}</p>
-        <p style="margin: 8px 0;"><strong>Striking Defense:</strong> {{ fighter1.Records['Sig. Str. Defense'] }}</p>
-        <p style="margin: 8px 0;"><strong>Takedown Avg:</strong> {{ fighter1.Records['Takedown avg'] }}</p>
-        <p style="margin: 8px 0;"><strong>Takedown Accuracy:</strong> {{ fighter1.Records['Takedown Accuracy'] }}</p>
-        <p style="margin: 8px 0;"><strong>Takedown Defense:</strong> {{ fighter1.Records['Takedown Defense'] }}</p>
-        <p style="margin: 8px 0;"><strong>Avg Fight Time:</strong> {{ fighter1.Records['Average fight time'] }}</p>
-      </div>
-      
-      <!-- Win Methods -->
-      <div *ngIf="fighter1['Win Stats']?.['Wins by Knockout']" style="background: #fce4ec; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-        <h4 style="color: #c2185b; margin-top: 0; font-size: 1.2rem;">Win Methods</h4>
-        <p style="margin: 8px 0;"><strong>KO Wins:</strong> {{ fighter1['Win Stats']['Wins by Knockout'] }}</p>
-        <p style="margin: 8px 0;"><strong>Submission Wins:</strong> {{ fighter1['Win Stats']['Wins by Submission'] }}</p>
-      </div>
-      
-      <!-- Win by Method -->
-      <div *ngIf="fighter1['Win by Method']?.Standing" style="background: #e8eaf6; padding: 20px; border-radius: 8px;">
-        <h4 style="color: #3f51b5; margin-top: 0; font-size: 1.2rem;">Win Distribution</h4>
-        <p style="margin: 8px 0;"><strong>Standing Win %:</strong> {{ fighter1['Win by Method'].Standing }}</p>
-        <p style="margin: 8px 0;"><strong>Clinch Win %:</strong> {{ fighter1['Win by Method'].Clinch }}</p>
-        <p style="margin: 8px 0;"><strong>Ground Win %:</strong> {{ fighter1['Win by Method'].Ground }}</p>
-      </div>
+      <!-- Placeholder when no fighter -->
+      <ng-template #fighter1Placeholder>
+        <div style="text-align: center; padding: 40px 20px; color: #7f8c8d;">
+          <h3 style="color: #3498db; margin-bottom: 20px;">Fighter 1</h3>
+          <p style="font-size: 1.1rem; margin-bottom: 15px;">Search for a fighter above to see their stats</p>
+        </div>
+      </ng-template>
     </div>
     
-    <div *ngIf="fighter2" style="flex: 1; background: white; border-radius: 12px; padding: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-left: 5px solid #e74c3c;">
-      <h3 style="color: #e74c3c; margin-top: 0; font-size: 1.8rem; border-bottom: 2px solid #e74c3c; padding-bottom: 10px;">{{ fighter2.Name }}</h3>
-      <p *ngIf="fighter2.Nickname" style="font-style: italic; color: #7f8c8d; margin-bottom: 25px; font-size: 1.1rem;">"{{ fighter2.Nickname }}"</p>
-      
-      <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-        <h4 style="color: #2c3e50; margin-top: 0; font-size: 1.2rem;">Fighter Info</h4>
-        <p style="margin: 8px 0;"><strong>Name:</strong> {{ fighter2.Name }}</p>
-        <p style="margin: 8px 0;"><strong>Nickname:</strong> {{ fighter2.Nickname || 'N/A' }}</p>
-        <p style="margin: 8px 0;"><strong>Division:</strong> {{ fighter2['Division Title'] || 'Not specified' }}</p>
+    <!-- Fighter 2 Card - Always takes right half -->
+    <div style="flex: 1; background: white; border-radius: 12px; padding: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: 3px solid #e74c3c; min-height: 400px;">
+      <div *ngIf="fighter2; else fighter2Placeholder">
+        <h3 style="color: #e74c3c; margin-top: 0; font-size: 1.8rem; border-bottom: 2px solid #e74c3c; padding-bottom: 10px;">{{ fighter2.Name }}</h3>
+        <p *ngIf="fighter2.Nickname" style="font-style: italic; color: #7f8c8d; margin-bottom: 25px; font-size: 1.1rem;">"{{ fighter2.Nickname }}"</p>
+        
+        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+          <h4 style="color: #2c3e50; margin-top: 0; font-size: 1.2rem;">Fighter Info</h4>
+          <p style="margin: 8px 0;"><strong>Name:</strong> {{ fighter2.Name }}</p>
+          <p style="margin: 8px 0;"><strong>Nickname:</strong> {{ fighter2.Nickname || 'N/A' }}</p>
+          <p style="margin: 8px 0;"><strong>Division:</strong> {{ fighter2['Division Title'] || 'Not specified' }}</p>
+        </div>
+        
+        <!-- Record -->
+        <div *ngIf="fighter2['Division Body']?.Wins" style="background: #e8f5e8; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+          <h4 style="color: #27ae60; margin-top: 0; font-size: 1.2rem;">Record</h4>
+          <p style="margin: 8px 0; font-size: 1.1rem;"><strong>Record:</strong> <span style="color: #27ae60; font-weight: bold; font-size: 1.2rem;">{{ fighter2['Division Body'].Wins }}-{{ fighter2['Division Body'].Losses }}-{{ fighter2['Division Body'].Draws }}</span></p>
+        </div>
+        
+        <!-- Bio -->
+        <div *ngIf="fighter2['Fighter Bio']?.Hometown" style="background: #e3f2fd; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+          <h4 style="color: #1976d2; margin-top: 0; font-size: 1.2rem;">Bio</h4>
+          <p style="margin: 8px 0;"><strong>Hometown:</strong> {{ fighter2['Fighter Bio'].Hometown }}</p>
+          <p style="margin: 8px 0;"><strong>Age:</strong> {{ fighter2['Fighter Bio'].Age }}</p>
+          <p style="margin: 8px 0;"><strong>Height:</strong> {{ fighter2['Fighter Bio'].Height }}"</p>
+          <p style="margin: 8px 0;"><strong>Weight:</strong> {{ fighter2['Fighter Bio'].Weight }} lbs</p>
+          <p style="margin: 8px 0;"><strong>Status:</strong> {{ fighter2['Fighter Bio'].Status }}</p>
+        </div>
+        
+        <!-- Fight Stats -->
+        <div *ngIf="fighter2.Records?.['Sig. Str. Landed']" style="background: #fff3e0; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+          <h4 style="color: #f57c00; margin-top: 0; font-size: 1.2rem;">Fight Stats</h4>
+          <p style="margin: 8px 0;"><strong>Striking Accuracy:</strong> {{ fighter2.Records['Striking accuracy'] }}</p>
+          <p style="margin: 8px 0;"><strong>Strikes Landed:</strong> {{ fighter2.Records['Sig. Str. Landed'] }}</p>
+          <p style="margin: 8px 0;"><strong>Strikes Absorbed:</strong> {{ fighter2.Records['Sig. Str. Absorbed'] }}</p>
+          <p style="margin: 8px 0;"><strong>Striking Defense:</strong> {{ fighter2.Records['Sig. Str. Defense'] }}</p>
+          <p style="margin: 8px 0;"><strong>Takedown Avg:</strong> {{ fighter2.Records['Takedown avg'] }}</p>
+          <p style="margin: 8px 0;"><strong>Takedown Accuracy:</strong> {{ fighter2.Records['Takedown Accuracy'] }}</p>
+          <p style="margin: 8px 0;"><strong>Takedown Defense:</strong> {{ fighter2.Records['Takedown Defense'] }}</p>
+          <p style="margin: 8px 0;"><strong>Avg Fight Time:</strong> {{ fighter2.Records['Average fight time'] }}</p>
+        </div>
+        
+        <!-- Win Methods -->
+        <div *ngIf="fighter2['Win Stats']?.['Wins by Knockout']" style="background: #fce4ec; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+          <h4 style="color: #c2185b; margin-top: 0; font-size: 1.2rem;">Win Methods</h4>
+          <p style="margin: 8px 0;"><strong>KO Wins:</strong> {{ fighter2['Win Stats']['Wins by Knockout'] }}</p>
+          <p style="margin: 8px 0;"><strong>Submission Wins:</strong> {{ fighter2['Win Stats']['Wins by Submission'] }}</p>
+        </div>
+        
+        <!-- Win by Method -->
+        <div *ngIf="fighter2['Win by Method']?.Standing" style="background: #e8eaf6; padding: 20px; border-radius: 8px;">
+          <h4 style="color: #3f51b5; margin-top: 0; font-size: 1.2rem;">Win Distribution</h4>
+          <p style="margin: 8px 0;"><strong>Standing Win %:</strong> {{ fighter2['Win by Method'].Standing }}</p>
+          <p style="margin: 8px 0;"><strong>Clinch Win %:</strong> {{ fighter2['Win by Method'].Clinch }}</p>
+          <p style="margin: 8px 0;"><strong>Ground Win %:</strong> {{ fighter2['Win by Method'].Ground }}</p>
+        </div>
       </div>
       
-      <!-- Record -->
-      <div *ngIf="fighter2['Division Body']?.Wins" style="background: #e8f5e8; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-        <h4 style="color: #27ae60; margin-top: 0; font-size: 1.2rem;">Record</h4>
-        <p style="margin: 8px 0; font-size: 1.1rem;"><strong>Record:</strong> <span style="color: #27ae60; font-weight: bold; font-size: 1.2rem;">{{ fighter2['Division Body'].Wins }}-{{ fighter2['Division Body'].Losses }}-{{ fighter2['Division Body'].Draws }}</span></p>
-      </div>
-      
-      <!-- Bio -->
-      <div *ngIf="fighter2['Fighter Bio']?.Hometown" style="background: #e3f2fd; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-        <h4 style="color: #1976d2; margin-top: 0; font-size: 1.2rem;">Bio</h4>
-        <p style="margin: 8px 0;"><strong>Hometown:</strong> {{ fighter2['Fighter Bio'].Hometown }}</p>
-        <p style="margin: 8px 0;"><strong>Age:</strong> {{ fighter2['Fighter Bio'].Age }}</p>
-        <p style="margin: 8px 0;"><strong>Height:</strong> {{ fighter2['Fighter Bio'].Height }}"</p>
-        <p style="margin: 8px 0;"><strong>Weight:</strong> {{ fighter2['Fighter Bio'].Weight }} lbs</p>
-        <p style="margin: 8px 0;"><strong>Status:</strong> {{ fighter2['Fighter Bio'].Status }}</p>
-      </div>
-      
-      <!-- Fight Stats -->
-      <div *ngIf="fighter2.Records?.['Sig. Str. Landed']" style="background: #fff3e0; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-        <h4 style="color: #f57c00; margin-top: 0; font-size: 1.2rem;">Fight Stats</h4>
-        <p style="margin: 8px 0;"><strong>Striking Accuracy:</strong> {{ fighter2.Records['Striking accuracy'] }}</p>
-        <p style="margin: 8px 0;"><strong>Strikes Landed:</strong> {{ fighter2.Records['Sig. Str. Landed'] }}</p>
-        <p style="margin: 8px 0;"><strong>Strikes Absorbed:</strong> {{ fighter2.Records['Sig. Str. Absorbed'] }}</p>
-        <p style="margin: 8px 0;"><strong>Striking Defense:</strong> {{ fighter2.Records['Sig. Str. Defense'] }}</p>
-        <p style="margin: 8px 0;"><strong>Takedown Avg:</strong> {{ fighter2.Records['Takedown avg'] }}</p>
-        <p style="margin: 8px 0;"><strong>Takedown Accuracy:</strong> {{ fighter2.Records['Takedown Accuracy'] }}</p>
-        <p style="margin: 8px 0;"><strong>Takedown Defense:</strong> {{ fighter2.Records['Takedown Defense'] }}</p>
-        <p style="margin: 8px 0;"><strong>Avg Fight Time:</strong> {{ fighter2.Records['Average fight time'] }}</p>
-      </div>
-      
-      <!-- Win Methods -->
-      <div *ngIf="fighter2['Win Stats']?.['Wins by Knockout']" style="background: #fce4ec; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-        <h4 style="color: #c2185b; margin-top: 0; font-size: 1.2rem;">Win Methods</h4>
-        <p style="margin: 8px 0;"><strong>KO Wins:</strong> {{ fighter2['Win Stats']['Wins by Knockout'] }}</p>
-        <p style="margin: 8px 0;"><strong>Submission Wins:</strong> {{ fighter2['Win Stats']['Wins by Submission'] }}</p>
-      </div>
-      
-      <!-- Win by Method -->
-      <div *ngIf="fighter2['Win by Method']?.Standing" style="background: #e8eaf6; padding: 20px; border-radius: 8px;">
-        <h4 style="color: #3f51b5; margin-top: 0; font-size: 1.2rem;">Win Distribution</h4>
-        <p style="margin: 8px 0;"><strong>Standing Win %:</strong> {{ fighter2['Win by Method'].Standing }}</p>
-        <p style="margin: 8px 0;"><strong>Clinch Win %:</strong> {{ fighter2['Win by Method'].Clinch }}</p>
-        <p style="margin: 8px 0;"><strong>Ground Win %:</strong> {{ fighter2['Win by Method'].Ground }}</p>
-      </div>
+      <!-- Placeholder when no fighter -->
+      <ng-template #fighter2Placeholder>
+        <div style="text-align: center; padding: 40px 20px; color: #7f8c8d;">
+          <h3 style="color: #e74c3c; margin-bottom: 20px;">Fighter 2</h3>
+          <p style="font-size: 1.1rem; margin-bottom: 15px;">Search for a fighter above to see their stats</p>
+        </div>
+      </ng-template>
     </div>
   </div>
 
