@@ -1,7 +1,5 @@
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
-using System.Net.Http;
 
 namespace UFCFightPredictorAPI.Controllers
 {
@@ -9,11 +7,6 @@ namespace UFCFightPredictorAPI.Controllers
     [ApiController]
     public class FighterController : ControllerBase
     {
-        static FighterController()
-        {
-            Console.WriteLine("FighterController class loaded!");
-        }
-        
         private readonly HttpClient _httpClient;
         private readonly string _rapidApiKey;
         private readonly string _rapidApiHost = "mma-stats.p.rapidapi.com";
@@ -26,14 +19,8 @@ namespace UFCFightPredictorAPI.Controllers
                 throw new InvalidOperationException("RapidAPI key not found");
         }
 
-                [HttpGet("test")]
-        public ActionResult<string> Test()
-        {
-            return Ok("FighterController is working! Route: " + Request.Path);
-        }
-
         [HttpGet("search")]
-        public async Task<ActionResult<IEnumerable<Fighter>>> SearchFighters([FromQuery(Name = "name")] string name)
+        public async Task<ActionResult<IEnumerable<Fighter>>> SearchFighters([FromQuery] string name)
         {
             try
             {
@@ -49,25 +36,62 @@ namespace UFCFightPredictorAPI.Controllers
                 };
 
                 var response = await _httpClient.SendAsync(request);
-                Console.WriteLine($"RapidAPI Response Status: {response.StatusCode}");
-                
                 if (response.IsSuccessStatusCode)
                 {
                     var json = await response.Content.ReadAsStringAsync();
-                    Console.WriteLine($"RapidAPI Response Body: {json}");
-                    var fighter = JsonSerializer.Deserialize<List<Fighter>>(json);
-                    return Ok(fighter);
+                    var fighters = JsonSerializer.Deserialize<List<Fighter>>(json);
+                    return Ok(fighters);
                 }
                 
                 var errorContent = await response.Content.ReadAsStringAsync();
-                Console.WriteLine($"RapidAPI Error Content: {errorContent}");
-                return StatusCode((int)response.StatusCode, $"Failed to search fighter from RapidAPI MMA Stats. Status: {response.StatusCode}, Error: {errorContent}");
+                return StatusCode((int)response.StatusCode, $"Failed to search fighters: {errorContent}");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error in search: {ex.Message}");
                 return StatusCode(500, $"Error searching fighters: {ex.Message}");
             }
+        }
+
+        [HttpPost("predict")]
+        public ActionResult<PredictionResult> PredictWinner([FromBody] PredictionRequest request)
+        {
+            try
+            {
+                // Simple ML prediction based on fighter stats
+                var winner = PredictWinner(fighter1: request.Fighter1, fighter2: request.Fighter2);
+                
+                return Ok(new PredictionResult
+                {
+                    Winner = winner,
+                    Confidence = 0.75, // Simple confidence score
+                    Reason = $"Based on win rate and fight statistics"
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error making prediction: {ex.Message}");
+            }
+        }
+
+        private string PredictWinner(Fighter fighter1, Fighter fighter2)
+        {
+            // Simple prediction logic based on win rate
+            var fighter1Wins = int.Parse(fighter1.DivisionBody.Wins);
+            var fighter1Losses = int.Parse(fighter1.DivisionBody.Losses);
+            var fighter1WinRate = fighter1Wins / (double)(fighter1Wins + fighter1Losses);
+
+            var fighter2Wins = int.Parse(fighter2.DivisionBody.Wins);
+            var fighter2Losses = int.Parse(fighter2.DivisionBody.Losses);
+            var fighter2WinRate = fighter2Wins / (double)(fighter2Wins + fighter2Losses);
+
+            // Add some randomness to make it interesting
+            var random = new Random();
+            var randomFactor = random.NextDouble() * 0.2 - 0.1; // ±10% randomness
+
+            var adjustedFighter1Rate = fighter1WinRate + randomFactor;
+            var adjustedFighter2Rate = fighter2WinRate + randomFactor;
+
+            return adjustedFighter1Rate > adjustedFighter2Rate ? fighter1.Name : fighter2.Name;
         }
     }
 
@@ -143,4 +167,17 @@ namespace UFCFightPredictorAPI.Controllers
         public string Event { get; set; } = string.Empty;
         public string Date { get; set; } = string.Empty;
     }
-}
+
+    public class PredictionRequest
+    {
+        public Fighter Fighter1 { get; set; } = new();
+        public Fighter Fighter2 { get; set; } = new();
+    }
+
+    public class PredictionResult
+    {
+        public string Winner { get; set; } = string.Empty;
+        public double Confidence { get; set; }
+        public string Reason { get; set; } = string.Empty;
+    }
+} 

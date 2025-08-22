@@ -1,5 +1,6 @@
-@UFCFightPredictorAPI_HostAddress = http://localhost:5204
+@UFCFightPredictorAPI_HostAddress = http://localhost:5294
 
-### Search Fighters
-GET {{UFCFightPredictorAPI_HostAddress}}/api/fighter/search?name=themba
+GET {{UFCFightPredictorAPI_HostAddress}}/weatherforecast/
 Accept: application/json
+
+###
